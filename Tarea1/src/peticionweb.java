@@ -44,7 +44,7 @@ class peticionWeb extends Thread
 			BufferedReader in = new BufferedReader (new InputStreamReader(scliente.getInputStream()));
   			out = new PrintWriter(new OutputStreamWriter(scliente.getOutputStream()),true) ;
   			    
-           
+      	
   			List<String> list = new ArrayList<String>();
   			String line = "";
   			
@@ -52,13 +52,15 @@ class peticionWeb extends Thread
             	list.add(line);
             	depura("--" + line + "-");
             	
-            	
+            	if(line.split("=")[0].equals("Nombre"))
+            	{
+            		agregarcontacto(line);
+            	}
             	if(line.isEmpty()){
 	            	cargarpagina(list);
 	            	list = new ArrayList<String>();
 	            	
             	}
-            	
             	
             }
             
@@ -77,22 +79,21 @@ class peticionWeb extends Thread
 	
 	void cargarpagina(List<String> lista)
 	{
+		
+        
 			String html ="<html><body>  <center> <title>Avioncito de papel</title>"+
 					
-					"<form action='agregarcontacto.html' method='get'>"+
+					"<form action='/agregarcontacto.html' method='get'>"+
 					"<input type='submit' value='Agregar contacto' /> "+
-					"<a href='agregarcontacto.html'> Volver atras</a>"+
+					"<input type='button' value='Ir al Index por favor' onClick='window.open('https://www.google.cl')'/>"+
+					"<a href='http://localhost:8000/hola.html'> Volver atras</a>"+
 									 
 					
 					"</form></center> </body> </html>";
 			 
-			
-		
 			String[] req = lista.get(0).split(" ");
 			
 			if(req[0].equals("GET")){
-				
-				
 				
 				File archivo = null;
 			    FileReader fr = null;
@@ -112,7 +113,7 @@ class peticionWeb extends Thread
 			    	
 			    	out.println("<table>");
 			    	out.println("<tr><th scope='col'>Contactos</th></tr>");
-	        		
+			    	
 			    	/*Lectura del archivo contactos.txt y escritura en el html*/
 			        while((linea=br.readLine())!=null)
 			        {	
@@ -126,8 +127,10 @@ class peticionWeb extends Thread
 			        } 
 			     	
 			        out.println("</table>");
+			     
+			       
+	                out.println(html); 
 			        
-			        out.println(html);
 		 
 		        } catch (Exception e) {
 		 
@@ -164,6 +167,28 @@ class peticionWeb extends Thread
 	    	}
 		
 	}
+	
+	void agregarcontacto(String contacto){
+		FileWriter fichero = null;
+        PrintWriter pw = null;
+        try
+        {
+            fichero = new FileWriter("contactos.txt",true);
+            pw = new PrintWriter(fichero);
+            pw.println(contacto);
+ 
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+           try {
+              if (null != fichero)
+            	  fichero.close();
+           } catch (Exception e2) {
+        	   e2.printStackTrace();
+           }
+        }
+	}
+	
 	
 	
 }
