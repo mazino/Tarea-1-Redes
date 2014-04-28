@@ -1,10 +1,11 @@
-import java.io.*;
+
 import java.net.*;
 
 
 public class webserver
 {
 	int puerto = 8000;
+	private ServerSocket s;
 	
 	public static void main(String [] array) 	
 	{
@@ -19,7 +20,7 @@ public class webserver
 		System.out.println("Arrancamos nuestro servidor");
 		try
 		{	
-			ServerSocket s = new ServerSocket(puerto);
+			s = new ServerSocket(puerto);
 			
 			System.out.println("Quedamos a la espera de conexion");
 						
