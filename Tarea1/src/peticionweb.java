@@ -6,94 +6,68 @@ import org.apache.commons.io.IOUtils;
 
 class peticionWeb extends Thread
 {
-	int contador = 0;
-
-	final int ERROR = 0;
-	final int WARNING = 1;
+	
 	final int DEBUG = 2;
 
-	void depura(String mensaje)
-	{
-		depura(mensaje,DEBUG);
-	}	
-
-	void depura(String mensaje, int gravedad)
-	{
-		System.out.println(currentThread().toString() + " - " + mensaje);
-	}	
-
-	private Socket scliente = null;		// representa la petición de nuestro cliente
-   	private PrintWriter out = null;		// representa el buffer donde escribimos la respuesta
+	
+	private Socket scliente = null;		
+   	private PrintWriter out = null;		
+	private BufferedReader in = null;
 
    	peticionWeb(Socket ps)
    	{
-		depura("El contador es " + contador);
-		
-		contador ++;
-
 		scliente = ps;
-		setPriority(NORM_PRIORITY - 1); // hacemos que la prioridad sea baja
    	}
 
-	public void run() // emplementamos el metodo run
+	public void run() 
 	{
-		depura("Procesamos conexion");
+		System.out.println("Procesamos conexion");
 
 		try
 		{	
-			BufferedReader in = new BufferedReader (new InputStreamReader(scliente.getInputStream()));
+			in = new BufferedReader (new InputStreamReader(scliente.getInputStream()));
   			out = new PrintWriter(new OutputStreamWriter(scliente.getOutputStream()),true) ;
-  			    
-      	
+  			        
+           		
   			List<String> list = new ArrayList<String>();
   			String line = "";
   			
-            while((line = in.readLine()) != null){
-            	list.add(line);
-            	depura("--" + line + "-");
+  			while ((line = in.readLine()) != null ){
+  				list.add(line);
+  				System.out.println("--" + line + "-");
             	
             	if(line.split("=")[0].equals("Nombre"))
             	{
             		agregarcontacto(line);
             	}
             	if(line.isEmpty()){
-	            	cargarpagina(list);
-	            	list = new ArrayList<String>();
-	            	
-            	}
+	            	cargarpagina(list); 
+	            }
             	
             }
-            
-           
+  			out.close();
             list.clear();
-  		
+            
 		}
 		catch(Exception e)
 		{
-			depura("Error en servidor\n" + e.toString());
+			System.out.println("Error en servidor\n" + e.toString());
 		}
 		
-		depura("Hemos terminado");
+		
+		System.out.println("Hemos terminado");
 	}
 	
 	
 	void cargarpagina(List<String> lista)
 	{
 		
-        
-			String html ="<html><body>  <center> <title>Avioncito de papel</title>"+
-					
-					"<form action='/agregarcontacto.html' method='get'>"+
-					"<input type='submit' value='Agregar contacto' /> "+
-					"<input type='button' value='Ir al Index por favor' onClick='window.open('https://www.google.cl')'/>"+
-					"<a href='http://localhost:8000/hola.html'> Volver atras</a>"+
-									 
-					
-					"</form></center> </body> </html>";
-			 
 			String[] req = lista.get(0).split(" ");
 			
-			if(req[0].equals("GET")){
+			
+			String url = req[1];
+
+			if(url.equals("/inicio.html") || url.equals("/")){
 				
 				File archivo = null;
 			    FileReader fr = null;
@@ -102,35 +76,44 @@ class peticionWeb extends Thread
 			    try {                
 			    	archivo = new File("contactos.txt");
 			    	if ( !archivo.exists())
-			    	{
-			    		archivo.createNewFile();
+			    	{	
+			    		//Si el archivo contacto no existe se crea vacio
+			    		archivo.createNewFile(); 
 			    	}
 			    	fr = new FileReader(archivo);
 			    	br = new BufferedReader(fr);
 			    	
 			    	String linea;
 			    	String[] aux;
+			    	String nombre;
 			    	
 			    	out.println("<table>");
-			    	out.println("<tr><th scope='col'>Contactos</th></tr>");
-			    	
+			    	out.println("<tr><th scope='col'>Contactos</th>");
+			    	out.println("<th scope='col'>IP</th>");
+			    	out.println("<th scope='col'>Puerto</th></tr>");
+			    				    	
 			    	/*Lectura del archivo contactos.txt y escritura en el html*/
 			        while((linea=br.readLine())!=null)
 			        {	
 			        	aux = linea.split("&");
-			        	if(aux[0].split("=")[0].equals("Nombre"))
+			        	nombre = aux[0].split("=")[1].replace("+"," ");
+			        	
+			        	out.println("<tr>");			    			        	
+		        		out.println("<td>"+nombre+"</td>");
+		        		out.write("<td>"+ aux[1].split("=")[1] +"</td>\n");
+		                out.write("<td>"+ aux[2].split("=")[1] +"</td>\n");
+		        		out.println("</tr>");
+			        
 			        		
-			        		out.println("<tr>");			    			        	
-			        		out.println("<td>"+aux[0].split("=")[1]+"</td>");
-			        		out.println("</tr>"); 
-			       
 			        } 
 			     	
 			        out.println("</table>");
 			     
-			       
-	                out.println(html); 
-			        
+
+	    			InputStream a = new FileInputStream ("inicio.html");
+	                String html = IOUtils.toString(a, "UTF-8");
+	                out.println(html); 	
+	                
 		 
 		        } catch (Exception e) {
 		 
@@ -145,27 +128,32 @@ class peticionWeb extends Thread
 		            e2.printStackTrace();
 		         }
 		      }
-	    		
-	    		
-	     	   
+ 
 	    	}
-	    	else if(req[0].equals("POST")){
-	    		try
+						
+			else if(req[1].equals("/agregarcontacto.html?")){
+				try
 	    		{	
-	    			InputStream archivo = new FileInputStream ("agregarcontacto.html");
-	                String home = IOUtils.toString(archivo, "UTF-8");
-	                out.println(home); 
-	               
-	               
+					
+					InputStream archivo = new FileInputStream ("agregarcontacto.html");
+	                String html = IOUtils.toString(archivo, "UTF-8");
+	                out.println(html);    
+	                
 	    		}
 	    		
 	    		catch(Exception e)
 	    		{
-	    			depura("Error en servidor\n" + e.toString());
+	    			System.out.println("Error en servidor\n" + e.toString());
 	    		}
+				
+			}
+			
+	      if(req[0].equals("POST")){
+	    		/**Aqui se supone que deberia estar la funcion agregarcontacto, la cual guarda el 
+	    		 * nuevo contacto en el .txt pero, por alguna razon guado se da click en el 
+	    		 * boton guardar contacto los datos no se leen y se queda como en espera... >:*/
 	  
 	    	}
-		
 	}
 	
 	void agregarcontacto(String contacto){
@@ -175,7 +163,14 @@ class peticionWeb extends Thread
         {
             fichero = new FileWriter("contactos.txt",true);
             pw = new PrintWriter(fichero);
-            pw.println(contacto);
+            
+            
+            /**Nos aseguramos que los 3 campos sean rellenados */
+            if (contacto.split("&")[0].split("=").length==2 &&
+            		contacto.split("&")[1].split("=").length==2 &&
+            			contacto.split("&")[2].split("=").length==2)
+            				
+            				pw.println(contacto);
  
         } catch (Exception e) {
             e.printStackTrace();
