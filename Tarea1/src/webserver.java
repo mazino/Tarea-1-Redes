@@ -35,7 +35,7 @@ public class webserver
 		}
 		catch(Exception e)
 		{
-			System.out.println("Error en el servidor\n" + e.toString());
+			System.out.println(e.toString());
 					
 		}
 		

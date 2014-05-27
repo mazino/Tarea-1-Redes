@@ -6,20 +6,17 @@ import org.apache.commons.io.IOUtils;
 
 class peticionWeb extends Thread
 {
-	
-	final int DEBUG = 2;
 
-	
-	private Socket scliente = null;		
-   	private PrintWriter out = null;		
-	private BufferedReader in = null;
+	private  Socket scliente = null;		// representa la petición de nuestro cliente
+   	private  PrintWriter out = null;		// representa el buffer donde escribimos la respuesta
+	private  BufferedReader in = null;
 
    	peticionWeb(Socket ps)
    	{
 		scliente = ps;
    	}
 
-	public void run() 
+	public void run() // implementamos el metodo run
 	{
 		System.out.println("Procesamos conexion");
 
@@ -36,18 +33,14 @@ class peticionWeb extends Thread
   				list.add(line);
   				System.out.println("--" + line + "-");
             	
-            	if(line.split("=")[0].equals("Nombre"))
-            	{
-            		agregarcontacto(line);
-            	}
             	if(line.isEmpty()){
 	            	cargarpagina(list); 
 	            }
             	
             }
+  			list.clear();
   			out.close();
-            list.clear();
-            
+                      
 		}
 		catch(Exception e)
 		{
@@ -59,14 +52,25 @@ class peticionWeb extends Thread
 	}
 	
 	
-	void cargarpagina(List<String> lista)
-	{
-		
-			String[] req = lista.get(0).split(" ");
-			
-			
-			String url = req[1];
+	void cargarpagina(List<String> lista) throws IOException
+	{		
 
+			String[] req = lista.get(0).split(" ");
+			String url = req[1];
+			
+			if(req[0].equals("POST")){		    	  
+		    	  String datos;
+	              char[] aux = new char[100];
+	              in.read(aux);
+	              for (int i=0;i<100;i++)
+	                  if(aux[i]==(char)0)
+	                      aux[i]='*';
+	              datos=new String(aux);
+	              datos = datos.replace("*","");
+	              System.out.println("Datos: " + datos);
+	              agregarcontacto(datos);
+		      }
+			
 			if(url.equals("/inicio.html") || url.equals("/")){
 				
 				File archivo = null;
@@ -86,6 +90,8 @@ class peticionWeb extends Thread
 			    	String linea;
 			    	String[] aux;
 			    	String nombre;
+			    	
+			    	
 			    	
 			    	out.println("<table>");
 			    	out.println("<tr><th scope='col'>Contactos</th>");
@@ -113,6 +119,7 @@ class peticionWeb extends Thread
 	    			InputStream a = new FileInputStream ("inicio.html");
 	                String html = IOUtils.toString(a, "UTF-8");
 	                out.println(html); 	
+	                out.close();
 	                
 		 
 		        } catch (Exception e) {
@@ -137,23 +144,19 @@ class peticionWeb extends Thread
 					
 					InputStream archivo = new FileInputStream ("agregarcontacto.html");
 	                String html = IOUtils.toString(archivo, "UTF-8");
-	                out.println(html);    
+	                out.println(html); 
+	                out.close();
 	                
 	    		}
 	    		
 	    		catch(Exception e)
 	    		{
-	    			System.out.println("Error en servidor\n" + e.toString());
+	    			System.out.println(e.toString());
 	    		}
 				
 			}
 			
-	      if(req[0].equals("POST")){
-	    		/**Aqui se supone que deberia estar la funcion agregarcontacto, la cual guarda el 
-	    		 * nuevo contacto en el .txt pero, por alguna razon guado se da click en el 
-	    		 * boton guardar contacto los datos no se leen y se queda como en espera... >:*/
-	  
-	    	}
+	      
 	}
 	
 	void agregarcontacto(String contacto){
