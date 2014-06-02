@@ -1,3 +1,4 @@
+
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.*;
@@ -20,17 +21,22 @@ public class webserver
 	{
 		System.out.println("Arrancamos nuestro servidor");
 		try
-		{					
-			s = new ServerSocket(0);
+		{			
+			//String thisIp = InetAddress.getLocalHost().getHostAddress();
+			//System.out.println("IP:"+thisIp);
+					
+			/*s = new ServerSocket(0);
 			System.out.println( "El sistema nos ha dado el puerto "+ s.getLocalPort());
 			System.out.println("Quedamos a la espera de conexion");
 			String url = "http://localhost:"+ s.getLocalPort();
 			System.out.println(url);
+			
 			if(Desktop.isDesktopSupported()){
 	            Desktop desktop = Desktop.getDesktop();
 	            try {
 	                desktop.browse(new URI(url));
 	            } catch (IOException | URISyntaxException e) {
+	                // TODO Auto-generated catch block
 	                e.printStackTrace();
 	            }
 	        }else{
@@ -38,14 +44,17 @@ public class webserver
 	            try {
 	                runtime.exec("xdg-open " + url);
 	            } catch (IOException e) {
-					e.printStackTrace();
+	                // TODO Auto-generated catch block
+	                e.printStackTrace();
 	            }
-	        }
+	        }*/
+			s = new ServerSocket(puerto);
+			System.out.println("Quedamos a la espera de conexion");
 			while(true)  
-			{
+			{	
 				Socket entrante = s.accept();		
 				
-				peticionWeb pCliente = new peticionWeb(entrante);
+				peticionWeb pCliente = new peticionWeb(entrante,puerto);
 				pCliente.start();
 
 			}
