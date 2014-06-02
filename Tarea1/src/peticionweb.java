@@ -9,7 +9,7 @@ class peticionWeb extends Thread
 	private Socket s=null;
 	
 	private  int port;
-	private  Socket scliente = null;		// representa la petición de nuestro cliente
+	private  Socket scliente = null;		// representa la peticiï¿½n de nuestro cliente
    	private  PrintWriter out = null;		// representa el buffer donde escribimos la respuesta
 	private  BufferedReader in = null;
 	
@@ -80,7 +80,7 @@ class peticionWeb extends Thread
 	              
 	              else if(url.equals("/chat.html"))
 				  {		
-	            	  /**Hay que acomodar esto para que lo haga cada "cierto tiempo"*/
+	            	  
 	            	  Socket s;
 	            	  s = new Socket("localhost",8080);
 	            	  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
@@ -188,7 +188,7 @@ class peticionWeb extends Thread
 
 			}
 			if(url.equals("/chat.html")){
-				
+		/**Hay que acomodar esto para que lo haga cada "cierto tiempo"*/		
           	  s = new Socket("localhost",8080);
           	  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
           	  BufferedReader b = new BufferedReader (new InputStreamReader(s.getInputStream()));
