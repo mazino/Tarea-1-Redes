@@ -22,8 +22,8 @@ public class webserver
 		System.out.println("Arrancamos nuestro servidor");
 		try
 		{			
-			//String thisIp = InetAddress.getLocalHost().getHostAddress();
-			//System.out.println("IP:"+thisIp);
+			String thisIp = InetAddress.getLocalHost().getHostAddress();
+			System.out.println("IP:"+thisIp);
 					
 			/*s = new ServerSocket(0);
 			System.out.println( "El sistema nos ha dado el puerto "+ s.getLocalPort());
@@ -54,7 +54,7 @@ public class webserver
 			{	
 				Socket entrante = s.accept();		
 				
-				peticionWeb pCliente = new peticionWeb(entrante,puerto);
+				peticionWeb pCliente = new peticionWeb(entrante,puerto,thisIp);
 				pCliente.start();
 
 			}

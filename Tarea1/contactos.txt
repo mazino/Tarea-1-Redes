@@ -1,5 +1,4 @@
-Nombre=cecilia&DirIP=127.0.0.1&Puerto=8020
+Nombre=cecilia&DirIP=192.168.2.100&Puerto=8020
 Nombre=felipe+vasquez&DirIP=192.0.0.1&Puerto=1212
 Nombre=juan&DirIP=127.0.0.1&Puerto=1414
 Nombre=alex&DirIP=192.168.2.102&Puerto=1212
-Nombre=kuro&DirIP=127.0.0.1&Puerto=8000

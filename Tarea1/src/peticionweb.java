@@ -8,16 +8,20 @@ class peticionWeb extends Thread
 {
 	private Socket s=null;
 	
-	private  int port;
-	private  Socket scliente = null;		// representa la peticiï¿½n de nuestro cliente
+	static   int port;
+	static String IP ="localhost";
+	//static List<String> contacto;
+	static String contacto,IPOrigen;
+	private  Socket scliente = null;		// representa la petición de nuestro cliente
    	private  PrintWriter out = null;		// representa el buffer donde escribimos la respuesta
 	private  BufferedReader in = null;
 	
 
-   	peticionWeb(Socket ps, int puerto)
+   	peticionWeb(Socket ps, int puerto, String ip)
    	{
 		scliente = ps;
 		port = puerto;
+		IPOrigen = ip;
    	}
 
 	public void run() // implementamos el metodo run
@@ -80,32 +84,40 @@ class peticionWeb extends Thread
 	              
 	              else if(url.equals("/chat.html"))
 				  {		
-	            	  
-	            	  Socket s;
-	            	  s = new Socket("localhost",8080);
-	            	  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
-	            	  BufferedReader b = new BufferedReader (new InputStreamReader(s.getInputStream()));
-
-	  				  String[] mensaje = datos.split("&")[0].split("="); //Verificar si el destinatario esta en la lista de contactos
-	            	  String ver = verificarcontacto(mensaje[1]);
-	  
-	            	  if(ver != null){
+	            	 
+	            	  if(datos.split("=")[0].equals("destinatario")){
+	            		  
+	            		   //contacto = new ArrayList<String>();
+	            		  contacto=datos;
+	            		//Verificar si el destinatario esta en la lista de contactos 
+	            	  }else if(datos.split("=")[0].equals("mensaje")){
+	            		 
+		            	  Socket s;
+		            	  s = new Socket(IP,8080);
+		            	  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
+		            	  BufferedReader b = new BufferedReader (new InputStreamReader(s.getInputStream()));
+		
+		            	  String datoscontacto = obtenerdatoscontacto(contacto.split("=")[1]);
+		            	 
+		            	  
 	            		  //Guardar los mensajes enviados en un txt para mostrarlos   
-	            		  String men = procesarmensaje(ver+"&"+datos); //este es el mensaje a enviar al servidor 
+	            		  String men = procesarmensaje(datos+"&"+contacto+"&"+datoscontacto+
+	            				  						"&PuertoOrigen="+port+"&IPOrigen="+IPOrigen);
+	            		  System.out.println(men);
 	            		  enviar.println(men);
-	            		  historial(men); //se agrega el mensaje que se quiere enviar en el historial
+	            		  historial(men); //se agrega el mensaje que se quiere enviar en el historial propio para cada contacto
 		            	  String respuesta = b.readLine();
 		            	  System.out.println(respuesta);
+		            	 
+		            	  
+		            	  enviar.close();
+			  			  b.close();
+			  			  s.close();
 	            	  }
-	            	  
-	            	  enviar.close();
-		  			  b.close();
-		  			  s.close();
-	            	  
 				  }
 	             
 	              
-		      }
+		      }//aqui termina post
 	
 			if(url.equals("/inicio.html") || url.equals("/")){
 				File archivo = null;
@@ -187,12 +199,14 @@ class peticionWeb extends Thread
 	    		}
 
 			}
+			
 			if(url.equals("/chat.html")){
-		/**Hay que acomodar esto para que lo haga cada "cierto tiempo"*/		
-          	  s = new Socket("localhost",8080);
+				
+			  /**Hay que acomodar esto para que lo haga cada "cierto tiempo"*/
+          	  s = new Socket(IP,8080);
           	  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
           	  BufferedReader b = new BufferedReader (new InputStreamReader(s.getInputStream()));
-          	  enviar.println("mensaje=msjnuevos&Puerto="+port);   
+          	  enviar.println("msjnuevos&Puerto="+port+"&DirIP="+IPOrigen);   //enviar IPv4 de la red local y compararla con DirIP de txt mensajes
 
         	  String respuesta=""; 
         	  List<String> list = new ArrayList<String>();
@@ -203,7 +217,7 @@ class peticionWeb extends Thread
         	  }
         	  
         	  for(int i = 0;i< list.size();i++){  
-        		  respuesta(list.get(i));
+        		  mensajesnuevos(list.get(i));
         	  }
           	  
            	 	
@@ -211,14 +225,17 @@ class peticionWeb extends Thread
          	     FileReader fr = null;
 					BufferedReader br = null;
 					try {                
-						archivo = new File("historial.txt");
+						archivo = new File(contacto.split("=")[1]+"historial.txt");
 						if (!archivo.exists())
 							archivo.createNewFile(); 
 						
 						fr = new FileReader(archivo);
 						br = new BufferedReader(fr);
 					
-						String linea;  			    	
+						String linea;
+					//	out.println("<html><head>");
+					//	out.println("<meta http-equiv='refresh' content='5'>");
+					//	out.println("</head>");
 						out.println("<table>");
 					    while((linea=br.readLine())!=null)/*Lectura del archivo historial.txt y escritura en el html*/
 					    {	
@@ -228,6 +245,8 @@ class peticionWeb extends Thread
 					    } 
 					
 					    out.println("</table>");
+					   // out.println("</html>");
+					    
 					} catch (Exception e) {
 					
 						e.printStackTrace();
@@ -279,7 +298,7 @@ class peticionWeb extends Thread
 	}
 	
 	
-	String verificarcontacto(String contacto){ //revisar cierre del fichero
+	String obtenerdatoscontacto(String contacto){ //revisar cierre del fichero
         
         File fichero = new File("contactos.txt" );
         BufferedReader entrada;
@@ -290,7 +309,6 @@ class peticionWeb extends Thread
 	        while(entrada.ready()){
 	        	linea = entrada.readLine();
 	        	if(linea.split("&")[0].split("=")[1].equals(contacto)){
-	        		System.out.println("Contacto reconocido");
 	        		usuario = linea;
 	        		entrada.close();
 	        		break;
@@ -300,26 +318,26 @@ class peticionWeb extends Thread
 	    }catch (IOException e) {
         	e.printStackTrace();
         }
-		return usuario;
-		
+		return usuario;	
 	}
 	
 	//Funcion para unir el mensaje con la direccion IP y puerto de Destinario
 	String procesarmensaje(String msj){ 
 		String [] aux;
 		aux = msj.split("&");
-		String mensaje = aux[1]+"&"+aux[2]+"&"+aux[3]+"&"+aux[4];
+		/**Se asigna la palabra clave mensaje para el servidor reconosca que es un mensaje que se quiere enviar*/
+		String mensaje = "mensaje&"+aux[1]+"&"+aux[3]+"&"+aux[4]+"&"+aux[6]+"&"+aux[5]+"&"+aux[0];
 		return mensaje;
 	}
 	void historial(String msj){ 
 		FileWriter fichero = null;
         PrintWriter pw = null;
 
-       String  mensaje ="mensaje:"+ msj.split("&")[3].split("=")[1].replace("+", " ")+" to:"
-    		   			+ msj.split("&")[2].split("=")[1].replace("+", " ");
+       String  mensaje ="yo: "+ msj.split("&")[6].split("=")[1].replace("+", " ")+".  to: "
+    		   			+ msj.split("&")[1].split("=")[1].replace("+", " ");
         try
         {	
-            fichero = new FileWriter("historial.txt",true);
+            fichero = new FileWriter(msj.split("&")[1].split("=")[1]+"historial.txt",true);
             pw = new PrintWriter(fichero);				
             pw.println(mensaje);
  
@@ -334,15 +352,17 @@ class peticionWeb extends Thread
              }
           }
 	}
-	void respuesta(String msj){ 
+	void mensajesnuevos(String msj){ 
 		FileWriter fichero = null;
         PrintWriter pw = null;
-
-       String  mensaje= msj.split("&")[2].split("=")[1].replace("+", " ")+" Dice:  " 
-    		   	+ msj.split("&")[3].split("=")[1].replace("+", " ");
+        String usersender = origenmensaje(msj.split("&")[4].split("=")[1],msj.split("&")[5].split("=")[1]);
+       
+        
+       String  mensaje= usersender+" dice:  " 
+    		   	+ msj.split("&")[6].split("=")[1].replace("+", " ");
         try
         {	
-            fichero = new FileWriter("historial.txt",true);
+            fichero = new FileWriter(usersender+"historial.txt",true);
             pw = new PrintWriter(fichero);				
             pw.println(mensaje);
  
@@ -356,6 +376,31 @@ class peticionWeb extends Thread
           	   e2.printStackTrace();
              }
           }
+	}
+	String origenmensaje(String ip, String puerto){ //Para saber quien ha enviado el mensaje
+        
+        File fichero = new File("contactos.txt");
+        BufferedReader entrada;
+        String usuario = null;
+        try {
+	        entrada = new BufferedReader(new FileReader(fichero));
+	        String linea;
+	        while(entrada.ready()){
+	        	linea = entrada.readLine();
+	        	if(linea.split("&")[1].split("=")[1].equals(ip)&&
+	        			linea.split("&")[2].split("=")[1].equals(puerto)){
+	        		
+	        		System.out.println("wena wena\n");
+	        		usuario = linea.split("&")[0].split("=")[1];
+	        		entrada.close();
+	        		break;
+	
+	        	}
+	        }
+	    }catch (IOException e) {
+        	e.printStackTrace();
+        }
+		return usuario;	
 	}
 
 }
