@@ -38,11 +38,15 @@ class peticionWeb extends Thread
   			String line = "";
   			
   			while ((line = in.readLine()) != null ){
-  				list.add(line);
-  				System.out.println("--" + line + "-");			
-            	if(line.isEmpty()){
-	            	cargarpagina(list); 
-	            }
+  				if(line.equals("recivirarchivo")){
+  					recibirarchivo();
+  				}else{
+	  				list.add(line);
+	  				System.out.println("--" + line + "-");			
+	            	if(line.isEmpty()){
+		            	cargarpagina(list); 
+		            }
+  				}
             	
             }
   			list.clear();
@@ -112,10 +116,10 @@ class peticionWeb extends Thread
 		            		 
 		            		
 	            			  enviar.println(men);
-		            		  String respuesta = b.readLine();
-		            		  System.out.println(respuesta);
 	            			  
-	            			if(respuesta.equals("OK")) {
+	            			  String respuesta = b.readLine(); 
+		            		  System.out.println(respuesta);
+		            		  if(respuesta.equals("OK")) {
 
 		            		  BufferedInputStream bis;
 		            		  BufferedOutputStream bos;
@@ -326,6 +330,30 @@ class peticionWeb extends Thread
 					    e2.printStackTrace();
 					 }
 					}
+					
+				enviar.println("ficherosnuevos&Puerto="+port+"&DirIP="+IPOrigen);
+				
+	        	List<String> archivos = new ArrayList<String>();
+	        	while(!(respuesta = b.readLine()).equals("fin###"))
+	        	{
+	        		System.out.println(respuesta);
+	        		archivos.add(respuesta);	        		
+	        		
+	        	}
+	        	  
+	        	for(int i = 0;i< archivos.size();i++){
+	        		
+	        		String user = origenmensaje(archivos.get(i).split("&")[4].split("=")[1],
+	        						archivos.get(i).split("&")[5].split("=")[1]);
+
+	        		if(user.equals(contacto.split("=")[1])){
+	        			enviar.println("enviar-"+archivos.get(i));
+	        			respuesta = b.readLine();
+	        		}
+	        		
+
+	        	}
+				
 				InputStream arch = new FileInputStream ("chat.html");
                 String html = IOUtils.toString(arch, "UTF-8");
                 out.println(html); 
@@ -337,6 +365,39 @@ class peticionWeb extends Thread
 			
 	}
 
+
+	void recibirarchivo(){
+		out.println("OK");
+		BufferedInputStream bis;
+	 	BufferedOutputStream bos;
+	 	byte[] receivedData;
+	 	int in;
+	 	String file;
+	 	
+		try{
+			
+				 receivedData = new byte[1024];
+				 bis = new BufferedInputStream(scliente.getInputStream());
+				 DataInputStream dis=new DataInputStream(scliente.getInputStream());
+				 //Recibimos el nombre del fichero
+				 file = dis.readUTF();
+				 file = file.substring(file.indexOf('\\')+1,file.length());
+				 //Para guardar fichero recibido
+				 bos = new BufferedOutputStream(new FileOutputStream(file));
+				 
+				 while ((in = bis.read(receivedData)) != -1){
+					 bos.write(receivedData,0,in);
+				 }
+				 	bos.close();
+				 	dis.close();
+				 	
+			 	File fichero=new File(file);
+				fichero.renameTo(new File(file.split("&")[6].split("=")[1]) ); //renombramos los ficheros con sus nombres originales
+				
+		 }catch (Exception e ) {
+			 System.err.println(e);
+		 }
+	}
 	void agregarcontacto(String contacto){
 		FileWriter fichero = null;
         PrintWriter pw = null;
@@ -464,7 +525,6 @@ class peticionWeb extends Thread
 	        	if(linea.split("&")[1].split("=")[1].equals(ip)&&
 	        			linea.split("&")[2].split("=")[1].equals(puerto)){
 	        		
-	        		System.out.println("wena wena\n");
 	        		usuario = linea.split("&")[0].split("=")[1];
 	        		entrada.close();
 	        		break;
@@ -478,3 +538,4 @@ class peticionWeb extends Thread
 	}
 
 }
+
