@@ -6,7 +6,7 @@ import java.net.*;
 
 public class webserver
 {	
-	int puerto = 8000;
+	int puerto = 8020;
 	private ServerSocket s;
 
 	public static void main(String [] array) 	
@@ -24,11 +24,9 @@ public class webserver
 		{			
 			String thisIp = InetAddress.getLocalHost().getHostAddress();
 			System.out.println("IP:"+thisIp);
-					
-			/*s = new ServerSocket(0);
-			System.out.println( "El sistema nos ha dado el puerto "+ s.getLocalPort());
-			System.out.println("Quedamos a la espera de conexion");
-			String url = "http://localhost:"+ s.getLocalPort();
+
+			s = new ServerSocket(puerto);
+			String url = "http://localhost:"+ puerto;
 			System.out.println(url);
 			
 			if(Desktop.isDesktopSupported()){
@@ -47,9 +45,10 @@ public class webserver
 	                // TODO Auto-generated catch block
 	                e.printStackTrace();
 	            }
-	        }*/
-			s = new ServerSocket(puerto);
+	        }
+			
 			System.out.println("Quedamos a la espera de conexion");
+			
 			while(true)  
 			{	
 				Socket entrante = s.accept();		

@@ -4,15 +4,15 @@ import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 
-class peticionWeb extends Thread
+class peticionweb extends Thread
 {
 	private Socket s=null;
 	
 	static   int port;
-	static String IP ="localhost";
+	static String IPservidor ="192.168.2.100"; 
 	static String contacto,IPOrigen;
-	private  Socket scliente = null;		// representa la petición de nuestro cliente
-   	private  PrintWriter out = null;		// representa el buffer donde escribimos la respuesta
+	private  Socket scliente = null;		
+   	private  PrintWriter out = null;		
 	private  BufferedReader in = null;
 	
 
@@ -20,10 +20,10 @@ class peticionWeb extends Thread
    	{
 		scliente = ps;
 		port = puerto;
-		IPOrigen = ip;
+		IPOrigen = ip; //Se le asigna IP 127.0.0.1 ya que este cliente se ejecutara en el mismo pc que el servidor
    	}
 
-	public void run() // implementamos el metodo run
+	public void run()
 	{
 		System.out.println("Procesamos conexion");
 		
@@ -90,8 +90,6 @@ class peticionWeb extends Thread
 				  {		
 	            	 
 	            	  if(datos.split("=")[0].equals("destinatario")){
-	            		  
-	            		  //contacto = new ArrayList<String>();
 	            		  contacto=datos;
 
 	            		  String verificarusuario = obtenerdatoscontacto(contacto.split("=")[1]);
@@ -110,7 +108,7 @@ class peticionWeb extends Thread
 			  						"&PuertoOrigen="+port+"&IPOrigen="+IPOrigen);
 	            		  	  System.out.println(men);
 	            		  	  
-	            			  Socket s = new Socket(IP, 8080);
+	            			  Socket s = new Socket(IPservidor, 8080);
 	            			  BufferedReader b = new BufferedReader (new InputStreamReader(s.getInputStream()));
 		            		  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
 		            		 
@@ -158,7 +156,7 @@ class peticionWeb extends Thread
 	            	  else if(datos.split("=")[0].equals("mensaje")){
 	            		 
 		            	  Socket s;
-		            	  s = new Socket(IP,8080);
+		            	  s = new Socket(IPservidor,8080);
 		            	  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
 		            	  BufferedReader b = new BufferedReader (new InputStreamReader(s.getInputStream()));
 		
@@ -272,10 +270,8 @@ class peticionWeb extends Thread
 			}
 			
 			if(url.equals("/chat.html")){
-				
-			  /**Hay que acomodar esto para que lo haga cada "cierto tiempo"*/
       			 	
-          	  s = new Socket(IP,8080);
+          	  s = new Socket(IPservidor,8080);
           	  PrintWriter enviar = new PrintWriter(new OutputStreamWriter(s.getOutputStream()),true);
           	  BufferedReader b = new BufferedReader (new InputStreamReader(s.getInputStream()));
           	  enviar.println("msjnuevos&Puerto="+port+"&DirIP="+IPOrigen);
@@ -405,8 +401,7 @@ class peticionWeb extends Thread
         {
             fichero = new FileWriter("contactos.txt",true);
             pw = new PrintWriter(fichero);
-            
-            
+              
             /**Nos aseguramos que los 3 campos sean rellenados */
             if (contacto.split("&")[0].split("=").length==2 &&
             		contacto.split("&")[1].split("=").length==2 &&
@@ -427,7 +422,7 @@ class peticionWeb extends Thread
 	}
 	
 	
-	String obtenerdatoscontacto(String contacto){ //revisar cierre del fichero
+	String obtenerdatoscontacto(String contacto){ 
         
         File fichero = new File("contactos.txt" );
         BufferedReader entrada;
