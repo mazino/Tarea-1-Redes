@@ -23,11 +23,9 @@ public class webserver
 		try
 		{			
 			String thisIp = InetAddress.getLocalHost().getHostAddress();
-			System.out.println("IP:"+thisIp);
-
+			
 			s = new ServerSocket(puerto);
 			String url = "http://localhost:"+ puerto;
-			System.out.println(url);
 			
 			if(Desktop.isDesktopSupported()){
 	            Desktop desktop = Desktop.getDesktop();
@@ -53,7 +51,7 @@ public class webserver
 			{	
 				Socket entrante = s.accept();		
 				
-				peticionWeb pCliente = new peticionWeb(entrante,puerto,thisIp);
+				peticionweb pCliente = new peticionweb(entrante,puerto,thisIp);
 				pCliente.start();
 
 			}

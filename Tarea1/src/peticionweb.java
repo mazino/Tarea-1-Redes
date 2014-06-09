@@ -16,7 +16,7 @@ class peticionweb extends Thread
 	private  BufferedReader in = null;
 	
 
-   	peticionWeb(Socket ps, int puerto, String ip)
+   	peticionweb(Socket ps, int puerto, String ip)
    	{
 		scliente = ps;
 		port = puerto;
@@ -166,7 +166,7 @@ class peticionweb extends Thread
 		            		  //Guardar los mensajes enviados en un txt para mostrarlos   
 		            		  String men = procesarmensaje(datos+"&"+contacto+"&"+datoscontacto+
 		            				  						"&PuertoOrigen="+port+"&IPOrigen="+IPOrigen);
-		            		  System.out.println(men);
+		            		  
 		            		  enviar.println(men);
 		            		  historial(men); //se agrega el mensaje que se quiere enviar en el historial propio para cada contacto
 			            	  String respuesta = b.readLine();
@@ -217,7 +217,7 @@ class peticionweb extends Thread
 			        	nombre = aux[0].split("=")[1].replace("+"," ");
 			        	
 			        	out.println("<tr>");			    			        	
-		        		out.println("<td><a href='/chat.html' name="+nombre+">"+nombre+"</a></td>");
+		        		out.println("<td>"+nombre+"</td>");
 		        		
 		        		out.write("<td>"+ aux[1].split("=")[1] +"</td>\n");
 		                out.write("<td>"+ aux[2].split("=")[1] +"</td>\n");
@@ -343,7 +343,7 @@ class peticionweb extends Thread
 	        						archivos.get(i).split("&")[5].split("=")[1]);
 
 	        		if(user.equals(contacto.split("=")[1])){
-	        			enviar.println("enviar-"+archivos.get(i));
+	        			enviar.println("enviar##"+archivos.get(i));
 	        			respuesta = b.readLine();
 	        		}
 	        		
