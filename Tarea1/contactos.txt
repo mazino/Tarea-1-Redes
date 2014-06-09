@@ -1,1 +1,1 @@
-Nombre=ceci&DirIP=192.168.2.104&Puerto=8000
+Nombre=ceci&DirIP=192.168.2.100&Puerto=8000
