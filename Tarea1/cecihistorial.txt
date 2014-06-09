@@ -1,0 +1,4 @@
+yo: hola ceci.  to: ceci
+ceci dice:  hola kuro
+yo: holi.  to: ceci
+ceci dice:  oli
