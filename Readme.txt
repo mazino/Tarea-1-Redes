@@ -8,7 +8,7 @@ Consideraciones:
 
 	La IP del servidor se asume conocida, luego para que se pueda establecer el flujo de información se debe colocar la IP
 	del servidor manualmente para esto, abrir el código peticionweb.java línea 12 y cambiar el String IPservidor por 
-	el correspondiente.
+	el correspondiente, para efectos de esta tarea la IPv4 del servidor es 192.168.2.100.
 
 	Para la apertura de los html se utilizó la librería commons-io-2.4 contenida en la carpeta lib.
 
